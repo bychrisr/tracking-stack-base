@@ -1,21 +1,19 @@
 status:
   branch: feat/sprint-1-stories
   modifiedFiles:
-    - .agent/
-    - .aiox-core/
-    - .aiox/
-    - .antigravity/
-    - .claude/CLAUDE.md
-  modifiedFilesTotalCount: 16
+    - .aiox/logs/tool-audit.jsonl
+    - .aiox/logs/tool-results.jsonl
+    - .aiox/project-status.yaml
+    - docs/stories/1.1.integrar-cmp-templates.md
+    - docs/stories/1.2.consent-mode-v2.md
+  modifiedFilesTotalCount: 10
   recentCommits:
-    - 'feat: init sprint 1 stories and docs from backlog branch'
-    - >-
-      Pre-ship fixes: wrangler.toml.example comment + sales-page CTA
-      disambiguation
+    - 'docs: update Claude Code skills to support Sprint 1 compliance and SEO'
+    - 'feat: finalize sprint 1 - LGPD compliance and SEO foundation'
   currentEpic: null
   currentStory: null
-  lastUpdate: '2026-04-25T15:47:16.051Z'
+  lastUpdate: '2026-04-25T16:12:23.716Z'
   isGitRepo: true
-timestamp: 1777132036053
+timestamp: 1777133543718
 ttl: 60
-gitFingerprint: 1777131975549.1125:1777132001257.316
+gitFingerprint: 1777131975549.1125:1777132767110.8818
