@@ -49,6 +49,8 @@ database_id = "__REPLACE_ME_DB_ID__"
 #   ENCHARGE_API_KEY
 #   MANYCHAT_KEY
 #   RETENTION_DAYS          Number of days to keep logs (default 90)
+#   ADMIN_EMAIL             Email address for critical alerts
+#   BASE_URL                Base URL of your site (e.g. https://yoursite.com)
 #   TIKTOK_WEBHOOK_SLUG     UUID v4 in URL path (generate per recipient; see deploy-stack)
 #   EDUZZ_WEBHOOK_SLUG      UUID v4 in URL path (generate per recipient; see deploy-stack)
 #   EDUZZ_HMAC_SECRET       Secret from Eduzz Panel -> Webhooks

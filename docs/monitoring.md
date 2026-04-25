@@ -30,5 +30,20 @@ Este checklist operacional deve ser seguido periodicamente para garantir a saúd
 - [ ] **Ad Spend Sync**: Se ativo, verificar se a aba **Attribution** mostra dados de investimento dos últimos 30 dias.
 - [ ] **Segurança**: Rotacionar `DASH_KEY` se o link foi compartilhado com terceiros ou após saída de membros da equipe.
 
+## Automações de Manutenção
+
+### Retenção de Dados (D1 Retention Policy)
+O banco de dados D1 tem limites de armazenamento. O stack inclui um script de limpeza automática (`functions/scripts/retention-policy.js`) que remove logs antigos para manter o sistema performático.
+
+- **Frequência:** Semanal (configurável via Cron Trigger no `wrangler.toml`).
+- **Configuração:** Defina `RETENTION_DAYS` (padrão 90) nas variáveis de ambiente.
+
+### Alerta de Saúde de Webhooks (Webhook Health Alert)
+Monitoramento proativo que detecta se o fluxo de vendas parou apesar de haver tráfego no site.
+
+- **Frequência:** Diária.
+- **Trigger:** Se houver > 0 sessões nas últimas 24h mas 0 compras registradas, o sistema dispara um alerta.
+- **Notificação:** Email enviado via Mailchannels para o endereço em `ADMIN_EMAIL`.
+
 ---
 *Referência: `docs/tracking-playbook-stack.md` seção "Rotina de monitoramento"*
