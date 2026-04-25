@@ -1,0 +1,19 @@
+status:
+  branch: feat/sprint-1-stories
+  modifiedFiles:
+    - .aiox/logs/tool-audit.jsonl
+    - .aiox/logs/tool-results.jsonl
+    - .aiox/project-status.yaml
+    - docs/stories/1.1.integrar-cmp-templates.md
+    - docs/stories/1.2.consent-mode-v2.md
+  modifiedFilesTotalCount: 10
+  recentCommits:
+    - 'docs: update Claude Code skills to support Sprint 1 compliance and SEO'
+    - 'feat: finalize sprint 1 - LGPD compliance and SEO foundation'
+  currentEpic: null
+  currentStory: null
+  lastUpdate: '2026-04-25T16:12:23.716Z'
+  isGitRepo: true
+timestamp: 1777133543718
+ttl: 60
+gitFingerprint: 1777131975549.1125:1777132767110.8818

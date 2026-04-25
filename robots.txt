@@ -1,0 +1,23 @@
+# Permite todos os crawlers. AI crawlers declarados explicitamente.
+# Atualize a URL do Sitemap para o seu domínio real.
+# Referência para IAs: llms.txt
+
+User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://seusite.com/sitemap.xml

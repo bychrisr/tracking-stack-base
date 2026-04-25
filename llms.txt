@@ -1,0 +1,14 @@
+# [Nome do Negócio]
+
+> [Uma frase descrevendo o que você faz e para quem]
+
+## Sobre
+[2-3 parágrafos sobre o negócio, produto e público-alvo. O que torna seu produto único e por que o cliente deve escolher você.]
+
+## Produtos
+- [Produto 1]: [breve descrição do produto ou serviço] — [URL da página do produto]
+- [Produto 2]: [breve descrição do produto ou serviço] — [URL da página do produto]
+
+## Contato
+- Email: contato@seusite.com
+- Site: https://seusite.com

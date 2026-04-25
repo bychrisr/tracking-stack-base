@@ -40,19 +40,21 @@ wrangler d1 execute ${DB_NAME} --remote --command \
 
 ## Checkpoint 2 — `/tracker` endpoint receives client events and writes to `event_log`
 
-**What to check**: when the visitor submits a lead form (or a sales page fires PageView), the client POSTs to `/tracker`, which logs non-PageView events to `event_log` and fires Meta CAPI + GA4 MP in parallel.
+**What to check**: when the visitor submits a lead form (or a sales page fires PageView), the client POSTs to `/tracker`, which logs non-PageView events to `event_log` and fires Meta CAPI + GA4 MP in parallel. We also check for LGPD consent audit trails.
 
 **How to verify**:
 
 ```bash
 wrangler d1 execute ${DB_NAME} --remote --command \
-  "SELECT event_name, event_id, raw_email, meta_response_ok, ga4_response_ok, timestamp FROM event_log ORDER BY timestamp DESC LIMIT 5"
+  "SELECT event_name, event_id, consent_status, consent_at, meta_response_ok, ga4_response_ok, timestamp FROM event_log ORDER BY timestamp DESC LIMIT 5"
 ```
 
-**PASS** — at least one `Lead` or `InitiateCheckout` row exists, `meta_response_ok = 1` and `ga4_response_ok = 1`.
+**PASS** — at least one `Lead` or `InitiateCheckout` row exists, `meta_response_ok = 1`, and `ga4_response_ok = 1`.
 
 **FAIL modes**:
 - **Zero rows.** Either no Lead event was ever fired (the recipient hasn't submitted the form), or the endpoint is returning 500. Ask them to submit the lead form once in a browser with devtools Network tab open. They should see a POST to `/tracker` with 200 response. If 500, the response body will tell you what's wrong.
+- **Rows exist but `consent_status` is 'unknown'.** This means the CMP (CookieYes) is loaded but didn't pass a status to the tracker, or the user hasn't interacted with the banner yet. Tell the recipient to accept cookies in the banner and try again.
+- **Rows exist but `consent_at` is empty.** The audit trail is missing. Check if the recipient updated the example templates correctly.
 - **Rows exist but `meta_response_ok = 0`.** The `meta_response_body` column has the error. Most common: invalid `META_ACCESS_TOKEN` (Meta returns a 190 error code), invalid `META_PIXEL_ID`, or the token doesn't have `ads_management` permission. Show the recipient the error body.
 - **Rows exist but `ga4_response_ok = 0`.** Usually the `GA4_API_SECRET` is wrong or was created for a different measurement ID. Have them re-create the secret in GA4 Admin → Data Streams → Measurement Protocol API secrets and paste the new value into Cloudflare dashboard → Pages project → Settings → Environment variables (edit `GA4_API_SECRET`), then retry the latest deployment.
 - **Only `PageView` rows show up here.** That's a bug in this skill's premise — PageView is never logged to `event_log`. If you see them, something's wrong with `tracker.js`. Stop and investigate.

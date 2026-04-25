@@ -1,6 +1,28 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
+  <!-- CMP — LGPD obrigatório. Substitua SEU_COOKIEYES_ID pelo ID da sua conta.
+       Referência: tracking-playbook.md seção 11
+       DEVE vir antes de qualquer pixel ou gtag.js -->
+  <script id="cookieyes" type="text/javascript"
+    src="https://cdn-cookieyes.com/client_data/SEU_COOKIEYES_ID/script.js">
+  </script>
+
+  <!-- Google Consent Mode v2 — 4 sinais obrigatórios
+       Modo básico: dispara gtag com sinais 'denied', Google modela o restante.
+       Modo avançado: CMP chama gtag('consent','update',{...}) após aceite.
+       DEVE vir antes do carregamento do gtag.js -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'analytics_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied'
+    });
+  </script>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Inscreva-se</title>
@@ -46,8 +68,6 @@
   <!-- GA4 (first-party via /scripts/gtag.js which proxies googletagmanager) -->
   <script async src="/scripts/gtag.js?id=G-XXXXXXXXXX"></script>
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX'); // ← your GA4 measurement ID
   </script>
@@ -313,6 +333,39 @@
       .btn { justify-content: center; padding: .875rem 1rem; }
     }
   </style>
+  <!-- Schema markup — atualize com seus dados reais.
+       Valide em: https://search.google.com/test/rich-results -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Nome do Negócio",
+    "url": "https://seusite.com",
+    "logo": "https://seusite.com/logo.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "contato@seusite.com"
+    }
+  }
+  </script>
+
+  <!-- Schema FAQPage — remova o comentário abaixo para ativar quando houver FAQ
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [{
+      "@type": "Question",
+      "name": "Pergunta aqui?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Resposta aqui."
+      }
+    }]
+  }
+  </script>
+  -->
 </head>
 <body>
   <main>
