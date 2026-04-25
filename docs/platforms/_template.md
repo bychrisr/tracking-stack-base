@@ -19,22 +19,24 @@ captures the parts that differ per platform.
 - **Sandbox availability**: yes / no. If no, document how the recipient
   triggers a test purchase (100%-off coupon, paused live product, etc.).
 
-## Endpoint security — obscure URL
+## Endpoint security — obscure URL & HMAC
 
-All adapters share the same gate: an unguessable 36-character UUID v4
-stored as `env.<PLATFORM>_WEBHOOK_SLUG`. The adapter compares the slug
-from the URL path (`context.params.slug`) against the env var via
-`guardSlug()` from `functions/webhook/_utils.js`. Wrong slug → 404,
-indistinguishable from a nonexistent route.
+All adapters are double-guarded:
+1. **Obscure URL**: `/webhook/<platform>/<slug>` with `<slug>` stored as
+   `env.<PLATFORM>_WEBHOOK_SLUG`. Wrong slug → 404.
+2. **Signature Verification**: If the platform supports it, the adapter
+   verifies the signature (HMAC-SHA256, HMAC-SHA1, or static token)
+   against the raw body using a secret from environment variables.
+   Wrong or missing signature → 401.
 
-Platform-native signature schemes (HMAC, static bearer tokens, JWT) are
-deliberately NOT verified in v1. If the platform offers one, document
-it here for the future `harden-tracking` skill to pick up:
-
+### Security configuration:
 - **Signature header name**:
-- **Algorithm** (HMAC-SHA256 hex, HMAC-SHA1 hex, static token, etc.):
-- **What is signed** (raw body, specific fields, query string, etc.):
-- **Recipient dashboard path for the signing secret**:
+- **Algorithm** (HMAC-SHA256, HMAC-SHA1, static token, etc.):
+- **Environment variable for secret**: `env.<PLATFORM>_HMAC_SECRET` (or `HOTTOK`)
+- **Recipient dashboard path for the secret**:
+
+If a platform has no native signature, it relies solely on the obscure
+URL (UUID slug), which is the v1 baseline.
 
 ## The `trk` field
 

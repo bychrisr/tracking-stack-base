@@ -216,8 +216,11 @@ If they set these, remind them they still need to schedule an external cron to h
 | Platform | Env var | Value | Webhook URL to paste into the platform dashboard |
 |---|---|---|---|
 | Eduzz | `EDUZZ_WEBHOOK_SLUG` 🔒 | `<generated UUID>` | `https://${PROJECT_NAME}.pages.dev/webhook/eduzz/<slug>` |
+| Eduzz | `EDUZZ_HMAC_SECRET` 🔒 | `(ask user)` | (Signature verification) |
 | Hotmart | `HOTMART_WEBHOOK_SLUG` 🔒 | `<generated UUID>` | `https://${PROJECT_NAME}.pages.dev/webhook/hotmart/<slug>` |
+| Hotmart | `HOTMART_HOTTOK` 🔒 | `(ask user)` | (Security token) |
 | Kiwify | `KIWIFY_WEBHOOK_SLUG` 🔒 | `<generated UUID>` | `https://${PROJECT_NAME}.pages.dev/webhook/kiwify/<slug>` |
+| Kiwify | `KIWIFY_HMAC_SECRET` 🔒 | `(ask user)` | (Signature verification) |
 | TikTok | `TIKTOK_WEBHOOK_SLUG` 🔒 | `<generated UUID>` | `https://${PROJECT_NAME}.pages.dev/webhook/tiktok/<slug>` |
 
 Tell the recipient: "These URLs are how each sales platform reaches your stack. Save them in a password manager — if anyone else gets a URL, they can inject fake purchases into your reporting."

@@ -46,11 +46,14 @@ this order, one or two at a time — don't dump the whole list at once.
    `event === 'paid'`, `status === 'APPROVED'`). There may be multiple
    statuses — we only process the "money received, delivery triggered"
    one.
+6. **Platform signature scheme**. Ask if the platform sends a signature
+   header (HMAC-SHA256, HMAC-SHA1, or a static token like Hottok). If
+   yes, ask for the header name and which dashboard section provides
+   the secret.
 
-Signature verification is **out of scope** for this skill. All adapters
-in v1 use the obscure-URL pattern (UUID slug in the path). If the
-recipient wants platform-native signature verification, direct them to
-the future `harden-tracking` skill.
+Signature verification is **highly recommended**. Use the generic
+`verifyHmacSignature` helper in `functions/webhook/_utils.js` (or
+`verifyHotmartHottok` for static tokens).
 
 If items 2-5 are missing and they can't get them, stop here — the
 parser can't be written accurately without a real payload.
@@ -134,12 +137,22 @@ Then edit `functions/webhook/<platform>/[slug].js`:
    ```
 3. **Change the `platform` string** in the normalized object from
    `'eduzz'` to the new platform name.
-4. **Replace the payload unwrap and parser** with the new mapping from
+4. **Add signature verification**. If the platform supports it:
+   - Import the helper from `../_utils.js`.
+   - Call it before the `try` block:
+     ```js
+     const hmacFailure = await verifyHmacSignature(request, env.<PLATFORM>_HMAC_SECRET, {
+       headerName: '<header-name>',
+       algorithm: 'SHA-256' // or SHA-1
+     });
+     if (hmacFailure) return hmacFailure;
+     ```
+5. **Replace the payload unwrap and parser** with the new mapping from
    the doc's table. Keep the `parsed` object's shape exactly — every
    key in the normalized purchase object is required by `_core.js`.
    If the platform doesn't provide a field, use `''` or `0`, never
    omit the key.
-5. **Replace the paid-status filter** with the new platform's check.
+6. **Replace the paid-status filter** with the new platform's check.
    Return `200 { ok: true, skipped: <reason> }` for non-paid events
    so the platform stops retrying.
 
