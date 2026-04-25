@@ -1,5 +1,6 @@
 # Permite todos os crawlers. AI crawlers declarados explicitamente.
 # Atualize a URL do Sitemap para o seu domínio real.
+# Referência para IAs: llms.txt
 
 User-agent: *
 Allow: /
