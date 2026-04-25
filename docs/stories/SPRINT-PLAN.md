@@ -93,4 +93,32 @@
 | Sprint 1 | E01, E02 | 1.1, 1.2, 1.3, 2.1, 2.2, 2.3 | Done |
 | Sprint 2 | E03, E04 | 3.1, 3.2, 3.3, 3.4, 4.1, 4.2 | Ready for Review |
 | Sprint 3 | E05 | 5.1, 5.2, 5.3 | Done |
-| **Total** | **5 épicos** | **13 stories** | |
+| Sprint 4 | Expansão & Ops | 6.1, 6.2, 6.3, 6.4, 6.5 | To Do |
+| **Total** | **6 épicos** | **18 stories** | |
+
+---
+
+## Sprint 4 — Expansão & Maturidade Operacional (P1/P2)
+
+**Objetivo:** Adicionar Stripe, Monetizze e ferramentas de monitoramento/manutenção.  
+**Estimativa:** 2 semanas
+
+| Story | Título | Prioridade | Executor |
+|-------|--------|-----------|---------|
+| 6.1 | Integração Stripe (Épico) | P1 | @dev |
+| 6.2 | Adapter Monetizze | P1 | @dev |
+| 6.3 | Dashboard CSV Export | P2 | @dev |
+| 6.4 | D1 Retention Policy Worker | P2 | @dev |
+| 6.5 | Alerta Webhook 0/dia | P1 | @dev |
+
+**Dependências internas:**
+- 6.1 e 6.2 são independentes
+- 6.4 e 6.5 utilizam o motor de Cron do Cloudflare Workers
+
+**Definition of Done Sprint 4:**
+- [ ] Adapters Stripe e Monetizze validados em produção/mock
+- [ ] Exportação CSV disponível no dashboard
+- [ ] Worker de limpeza automática ativo no D1
+- [ ] Sistema de alerta de saúde de webhooks configurado
+- [ ] `wrangler.toml.example` atualizado com novas env vars
+- [ ] Documentação de plataformas e monitoramento atualizada
