@@ -53,4 +53,5 @@ database_id = "__REPLACE_ME_DB_ID__"
 #   HOTMART_WEBHOOK_SLUG    same pattern
 #   HOTMART_HOTTOK          Token from Hotmart Panel -> Webhooks
 #   KIWIFY_WEBHOOK_SLUG     same pattern
+#   KIWIFY_HMAC_SECRET      Secret Token from Kiwify Panel -> Webhooks
 # ---------------------------------------------------------------------------

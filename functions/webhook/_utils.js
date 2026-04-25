@@ -69,3 +69,54 @@ export function verifyHotmartHottok(request, expectedHottok) {
 
   return null;
 }
+
+// Verifies the Kiwify x-kiwify-signature header (HMAC-SHA1).
+//
+// Returns a 401 Response on failure, 500 if the secret is missing,
+// or null on success.
+export async function verifyKiwifySignature(request, secret) {
+  if (!secret) {
+    return new Response(
+      JSON.stringify({ error: 'KIWIFY_HMAC_SECRET not configured' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const signature = request.headers.get('x-kiwify-signature');
+  if (!signature) {
+    return new Response(
+      JSON.stringify({ error: 'unauthorized (missing signature)' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // We need the raw body as text for HMAC.
+  const clonedRequest = request.clone();
+  const bodyText = await clonedRequest.text();
+
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const bodyData = encoder.encode(bodyText);
+
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-1' },
+    false,
+    ['sign']
+  );
+
+  const signatureBuffer = await crypto.subtle.sign('HMAC', key, bodyData);
+  const hashHex = Array.from(new Uint8Array(signatureBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  if (!timingSafeEqual(signature, hashHex)) {
+    return new Response(
+      JSON.stringify({ error: 'unauthorized (invalid signature)' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  return null;
+}

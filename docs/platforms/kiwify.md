@@ -13,15 +13,24 @@ Parser below was confirmed against a real `order_approved` capture.
 - **Dashboard URL for webhook config**: Kiwify → Configurações →
   Webhooks.
 
-## Endpoint security — obscure URL
+## Endpoint security — obscure URL & HMAC-SHA1
 
-Same pattern as Eduzz and Hotmart. `/webhook/kiwify/<slug>` with
-`<slug>` stored as `env.KIWIFY_WEBHOOK_SLUG`. Wrong slug → 404.
+Kiwify webhooks are double-guarded:
+1. **Obscure URL**: `/webhook/kiwify/<slug>` with `<slug>` stored as
+   `env.KIWIFY_WEBHOOK_SLUG`. Wrong slug → 404.
+2. **HMAC-SHA1 Verification**: The `x-kiwify-signature` header is
+   verified against the raw body using `env.KIWIFY_HMAC_SECRET`. Wrong
+   or missing signature → 401.
 
-Kiwify's platform-native signature is a 40-char hex string at
-`rawPayload.signature` (HMAC-SHA1 over a subset of the payload). The v1
-adapter ignores it deliberately — the future `harden-tracking` skill
-adds verification if the recipient wants it.
+### How to configure:
+1. In the Kiwify dashboard, go to **Configurações → Webhooks**.
+2. Create or edit your webhook configuration.
+3. In the **Secret Token** (or **Token**) field, define a random secret
+   string.
+4. Copy this value and set it as `KIWIFY_HMAC_SECRET` in your
+   Cloudflare Pages environment variables.
+5. If `KIWIFY_HMAC_SECRET` is not set in the environment, the stack
+   returns 500 (misconfiguration) to prevent unauthenticated traffic.
 
 ## The `trk` field
 
@@ -166,3 +175,5 @@ Other event types acknowledged-and-skipped:
 7. Fire a refund from Kiwify. Confirm the adapter acknowledges with
    200 but does NOT fire a second Meta event.
 8. Hit `/webhook/kiwify/wrong-slug` directly — expect 404.
+9. Hit the correct URL with a wrong or missing `x-kiwify-signature`
+   header — expect 401.
