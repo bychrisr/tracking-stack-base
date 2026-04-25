@@ -66,6 +66,7 @@ One row per non-PageView event. Written by `functions/tracker.js` in
 | `itp_cookie_extended` | INTEGER | 1 if we recovered `fbp` from the middleware HTTP cookie (i.e. ITP truncated the JS cookie) |
 | `is_bot` / `bot_reason` | INTEGER / TEXT | From `detectBot()` |
 | `consent_status` | TEXT | Recipient-defined; defaults to `unknown` |
+| `consent_at` | INTEGER | Unix timestamp of the consent action (added in migration 0016) |
 | `sent_to_meta` / `meta_response_ok` | INTEGER | Fire + ack |
 | `sent_to_ga4` / `ga4_response_ok` | INTEGER | Same |
 | `has_email` / `has_phone` / `has_name` | INTEGER | Coverage flags for dashboard |
