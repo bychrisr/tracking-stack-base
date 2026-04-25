@@ -90,7 +90,7 @@
 
 | Sprint | Épicos | Stories | Status |
 |--------|--------|---------|--------|
-| Sprint 1 | E01, E02 | 1.1, 1.2, 1.3, 2.1, 2.2, 2.3 | Draft |
-| Sprint 2 | E03, E04 | 3.1, 3.2, 3.3, 3.4, 4.1, 4.2 | Draft |
+| Sprint 1 | E01, E02 | 1.1, 1.2, 1.3, 2.1, 2.2, 2.3 | Done |
+| Sprint 2 | E03, E04 | 3.1, 3.2, 3.3, 3.4, 4.1, 4.2 | Ready for Review |
 | Sprint 3 | E05 | 5.1, 5.2, 5.3 | Draft |
 | **Total** | **5 épicos** | **13 stories** | |
