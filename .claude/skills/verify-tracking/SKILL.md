@@ -20,6 +20,19 @@ Confirm with the recipient before starting:
 
 If the recipient is running sales-page checkpoints (3 through 6), ask which sales platform they're using (`eduzz`, `hotmart`, or `kiwify`) and call it `PLATFORM`.
 
+## Checkpoint 0 — Hardening & Environment Verification
+
+**What to check**: ensure the new security variables (HMAC secrets or Hottok) are configured. Without these, the webhooks will return 500 or 401 and break the chain.
+
+**How to verify**:
+1. Check if the environment variables exist:
+   - Hotmart: `HOTMART_HOTTOK`
+   - Kiwify: `KIWIFY_HMAC_SECRET`
+   - Eduzz: `EDUZZ_HMAC_SECRET`
+2. **Security Smoke Test**: Try to access a webhook URL directly in the browser (or via `curl`) with the correct slug but NO signature header.
+   - Expected: `401 Unauthorized`.
+   - If it returns `200` or `404`, the hardening is not correctly active or the slug is wrong.
+
 ## Checkpoint 1 — Edge middleware generates `_krob_sid` and writes to `sessions`
 
 **What to check**: when a visitor hits any page, the middleware should set a `_krob_sid` cookie and upsert a row in the `sessions` table with `fbp`, `external_id`, and any UTMs present in the URL.
