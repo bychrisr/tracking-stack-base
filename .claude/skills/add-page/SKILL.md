@@ -83,9 +83,10 @@ to this one.
 ## Step 5 — Apply the minimum per-page configuration
 
 Open `<path>/index.html` and edit the values the recipient must set
-(search the file for `YOUR_` and `XXXXXXXXXX`):
+(search the file for `YOUR_`, `XXXXXXXXXX`, and `SEU_COOKIEYES_ID`):
 
 **Lead form** — ask the recipient for:
+- **CookieYes ID** (from your CookieYes dashboard) → replace `SEU_COOKIEYES_ID`.
 - Meta Pixel ID (numeric) → replace `YOUR_META_PIXEL_ID`
 - GA4 Measurement ID (`G-XXXXXXXXXX`) → replace both occurrences. If the
   recipient isn't using GA4, tell them to delete the two GA4 `<script>`
@@ -105,6 +106,16 @@ Open `<path>/index.html` and edit the values the recipient must set
 Do NOT change any other code unless the recipient explicitly asks and
 you've re-read the recipe doc to confirm it's safe. The scripts in the
 starters are deliberately minimal and tested.
+
+### Schema Markup (SEO / AEO)
+
+The starters include `Organization` schema and a commented-out `FAQPage`
+schema before the `</head>` tag. Tell the recipient:
+
+1. Update the "Nome do Negócio", "url", and "logo" values in the
+   `Organization` block.
+2. If they have a FAQ section, uncomment and fill in the `FAQPage` block.
+3. Validate the page later using the [Google Rich Results Test](https://search.google.com/test/rich-results).
 
 ### Lead form: optionally collect phone and/or name
 

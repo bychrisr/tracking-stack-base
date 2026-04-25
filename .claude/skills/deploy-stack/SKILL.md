@@ -239,14 +239,19 @@ Show the recipient a summary:
 ✓ GitHub:       https://github.com/${GH_USER}/${PROJECT_NAME}  (private)
 ✓ D1:           ${PROJECT_NAME}-db (migrations applied, bound as DB)
 ✓ Env vars set: <list the ones they configured, not the values>
+✓ Compliance:   robots.txt and llms.txt initialized (see SEO/AEO note)
 
 Dashboard: https://${PROJECT_NAME}.pages.dev/dash/?key=<DASH_KEY>
            (Save DASH_KEY in a password manager — it's the only way in.)
 
 Next steps:
   1. Add your first page — say "add a lead page" or "add a sales page".
+     - Have your **CookieYes ID** ready.
   2. After a page is live and you've submitted/visited it once, run "verify tracking".
-  3. If you use Meta Ads, configure ad-spend sync — see docs/ad-spend-sync.md.
+  3. Update **llms.txt** with your business info to help IAs understand your product.
+  4. If you use Meta Ads, configure ad-spend sync — see docs/ad-spend-sync.md.
+
+**Note on SEO / AEO**: Your stack includes a `robots.txt` and an `llms.txt`. Remember to update the sitemap URL in `robots.txt` and fill in the placeholders in `llms.txt` to boost your site's visibility to AI models like ChatGPT and Gemini.
 ```
 
 Do NOT suggest running `verify-tracking` immediately. The verify skill needs real traffic in D1 to check anything meaningful — the recipient has to add a page and visit it first.
