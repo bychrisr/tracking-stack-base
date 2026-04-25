@@ -46,3 +46,26 @@ export function guardSlug(paramSlug, expectedSlug) {
   }
   return null;
 }
+
+// Verifies the Hotmart X-Hotmart-Hottok header.
+//
+// Returns a 401 Response on failure, 500 if the secret is missing,
+// or null on success.
+export function verifyHotmartHottok(request, expectedHottok) {
+  if (!expectedHottok) {
+    return new Response(
+      JSON.stringify({ error: 'HOTMART_HOTTOK not configured' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const hottok = request.headers.get('X-Hotmart-Hottok');
+  if (!hottok || !timingSafeEqual(hottok, expectedHottok)) {
+    return new Response(
+      JSON.stringify({ error: 'unauthorized' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  return null;
+}

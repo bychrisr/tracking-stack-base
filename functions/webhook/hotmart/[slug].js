@@ -30,13 +30,16 @@
 // -----------------------------------------------------------------------------
 
 import { processPurchase } from '../_core.js';
-import { guardSlug } from '../_utils.js';
+import { guardSlug, verifyHotmartHottok } from '../_utils.js';
 
 export async function onRequestPost(context) {
   const { request, env, params } = context;
 
   const slugFailure = guardSlug(params.slug, env.HOTMART_WEBHOOK_SLUG);
   if (slugFailure) return slugFailure;
+
+  const hottokFailure = verifyHotmartHottok(request, env.HOTMART_HOTTOK);
+  if (hottokFailure) return hottokFailure;
 
   try {
     const rawPayload = await request.json();

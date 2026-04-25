@@ -14,14 +14,23 @@ capture.
   staging URL, fire test purchases with fake card numbers.
 - **Dashboard URL for webhook config**: Hotmart → Ferramentas → Webhook.
 
-## Endpoint security — obscure URL
+## Endpoint security — obscure URL & Hottok
 
-Same pattern as Eduzz. `/webhook/hotmart/<slug>` with `<slug>` stored as
-`env.HOTMART_WEBHOOK_SLUG`. Wrong slug → 404. Platform-native `hottok`
-verification is deliberately deferred to the future `harden-tracking`
-skill — Hotmart's `hottok` is a static bearer token, which leaks like an
-obscure URL leaks, so adding it alongside the slug doesn't meaningfully
-raise the bar for v1.
+Hotmart webhooks are double-guarded:
+1. **Obscure URL**: `/webhook/hotmart/<slug>` with `<slug>` stored as
+   `env.HOTMART_WEBHOOK_SLUG`. Wrong slug → 404.
+2. **Hottok Verification**: The `X-Hotmart-Hottok` header is compared
+   against `env.HOTMART_HOTTOK` using `timingSafeEqual`. Wrong or
+   missing Hottok → 401.
+
+### How to configure:
+1. In the Hotmart dashboard, go to **Ferramentas → Webhook**.
+2. Create or edit your webhook configuration.
+3. In the **Autenticação** section, look for **Token (Hottok)**.
+4. Copy the value and set it as `HOTMART_HOTTOK` in your Cloudflare
+   Pages environment variables.
+5. If `HOTMART_HOTTOK` is not set in the environment, the stack returns
+   500 (misconfiguration) to prevent unauthenticated traffic.
 
 ## The `trk` field
 
@@ -195,3 +204,5 @@ pending), `PURCHASE_CANCELED`. Only fire Meta/GA4/Ads on
    Meta creds are set), `product_id` stringified from the numeric
    Hotmart ID.
 6. Hit `/webhook/hotmart/wrong-slug` directly — expect 404.
+7. Hit the correct URL with a wrong or missing `X-Hotmart-Hottok` header
+   — expect 401.

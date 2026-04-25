@@ -51,5 +51,6 @@ database_id = "__REPLACE_ME_DB_ID__"
 #   TIKTOK_WEBHOOK_SLUG     UUID v4 in URL path (generate per recipient; see deploy-stack)
 #   EDUZZ_WEBHOOK_SLUG      UUID v4 in URL path (generate per recipient; see deploy-stack)
 #   HOTMART_WEBHOOK_SLUG    same pattern
+#   HOTMART_HOTTOK          Token from Hotmart Panel -> Webhooks
 #   KIWIFY_WEBHOOK_SLUG     same pattern
 # ---------------------------------------------------------------------------
