@@ -35,4 +35,5 @@ export default {
   eduzz: {},
   hotmart: {},
   kiwify: {},
+  stripe: {},
 };

@@ -92,6 +92,86 @@ export async function verifyEduzzSignature(request, secret) {
   });
 }
 
+// Verifies the Stripe-Signature header (HMAC-SHA256).
+// Stripe signature follows the format: t=timestamp,v1=signature
+// The signed payload is: timestamp + "." + rawBody
+//
+// Returns a 401 Response on failure, 500 if the secret is missing,
+// or null on success.
+export async function verifyStripeSignature(request, secret) {
+  if (!secret) {
+    return new Response(
+      JSON.stringify({ error: 'STRIPE_WEBHOOK_SECRET not configured' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const signatureHeader = request.headers.get('Stripe-Signature');
+  if (!signatureHeader) {
+    return new Response(
+      JSON.stringify({ error: 'unauthorized (missing signature)' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Parse header
+  const parts = signatureHeader.split(',').reduce((acc, part) => {
+    const [key, value] = part.split('=');
+    acc[key] = value;
+    return acc;
+  }, {});
+
+  const timestamp = parts.t;
+  const signature = parts.v1;
+
+  if (!timestamp || !signature) {
+    return new Response(
+      JSON.stringify({ error: 'unauthorized (malformed signature)' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // We need the raw body as text for HMAC.
+  const clonedRequest = request.clone();
+  const bodyText = await clonedRequest.text();
+  const signedPayload = `${timestamp}.${bodyText}`;
+
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const bodyData = encoder.encode(signedPayload);
+
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signatureBuffer = await crypto.subtle.sign('HMAC', key, bodyData);
+  const hashHex = Array.from(new Uint8Array(signatureBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  if (!timingSafeEqual(signature, hashHex)) {
+    return new Response(
+      JSON.stringify({ error: 'unauthorized (invalid signature)' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Optional: check timestamp tolerance (e.g. 5 minutes)
+  const now = Math.floor(Date.now() / 1000);
+  if (Math.abs(now - parseInt(timestamp, 10)) > 300) {
+    return new Response(
+      JSON.stringify({ error: 'unauthorized (timestamp out of range)' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  return null;
+}
+
 // Generic HMAC signature verification helper.
 async function verifyHmacSignature(request, secret, { headerName, algorithm }) {
   if (!secret) {

@@ -55,4 +55,7 @@ database_id = "__REPLACE_ME_DB_ID__"
 #   HOTMART_HOTTOK          Token from Hotmart Panel -> Webhooks
 #   KIWIFY_WEBHOOK_SLUG     same pattern
 #   KIWIFY_HMAC_SECRET      Secret Token from Kiwify Panel -> Webhooks
+#   STRIPE_WEBHOOK_SLUG     same pattern
+#   STRIPE_WEBHOOK_SECRET   Secret from Stripe Dashboard -> Webhooks
+#   MONETIZZE_WEBHOOK_SLUG  same pattern
 # ---------------------------------------------------------------------------
