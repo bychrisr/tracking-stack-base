@@ -364,6 +364,7 @@ Legenda: **[STACK]** = resolvido pelo stack | **[MANUAL]** = você configura
 | Como os identifiers se propagam hop-a-hop | `docs/data-flow.md` |
 | Schema completo das tabelas D1 | `docs/schema.md` |
 | Arquitetura e decisões de design | `docs/architecture.md` |
+| Rotina de monitoramento acionável | `docs/monitoring.md` |
 | Setup completo de LGPD e Consent Mode | `tracking-playbook.md` seção 11 |
 | Padrão UTM e nomenclatura | `tracking-playbook.md` seção 9 |
 | Adicionar nova plataforma de vendas | skill `add-sales-platform` |

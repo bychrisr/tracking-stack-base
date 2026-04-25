@@ -89,7 +89,7 @@ DASH_KEY=$(openssl rand -hex 32)
 
 `DASH_KEY` gates `/dash` and the read-only `/api/*` endpoints. Tell the recipient to save it in a password manager — it's the only way to open the dashboard.
 
-**Sales-platform webhook slugs** — ask: "Which sales platforms will you use — Eduzz, Hotmart, Kiwify, none of those, or not sure yet?"
+**Sales-platform webhook slugs** — ask: "Which sales platforms will you use — Eduzz, Hotmart, Kiwify, TikTok, none of those, or not sure yet?"
 
 For each YES, generate a UUID:
 
@@ -97,6 +97,7 @@ For each YES, generate a UUID:
 EDUZZ_SLUG=$(uuidgen | tr '[:upper:]' '[:lower:]')
 HOTMART_SLUG=$(uuidgen | tr '[:upper:]' '[:lower:]')
 KIWIFY_SLUG=$(uuidgen | tr '[:upper:]' '[:lower:]')
+TIKTOK_SLUG=$(uuidgen | tr '[:upper:]' '[:lower:]')
 ```
 
 These are the only thing standing between a public URL and arbitrary purchase injection, so treat them like secrets. The recipient will paste the corresponding full webhook URL into each platform's dashboard later.
@@ -172,6 +173,8 @@ Give the recipient this checklist, prefilled with every value you generated. Tel
 |---|---|---|---|
 | `META_PIXEL_ID` | numeric Pixel ID | Meta Events Manager → your Pixel → top of page | no |
 | `META_ACCESS_TOKEN` | long-lived CAPI token | Events Manager → your Pixel → Settings → **Generate access token** | 🔒 |
+| `TIKTOK_PIXEL_ID` | TikTok Pixel ID | TikTok Events Manager → your Pixel → top of page | no |
+| `TIKTOK_EVENTS_API_TOKEN`| Events API token | TikTok Events Manager → Settings → **Generate access token** | 🔒 |
 | `DASH_KEY` | `<the value you generated in Step 6>` | generated above | 🔒 |
 
 **Optional — add only the rows the recipient actually wants now:**
@@ -215,6 +218,7 @@ If they set these, remind them they still need to schedule an external cron to h
 | Eduzz | `EDUZZ_WEBHOOK_SLUG` 🔒 | `<generated UUID>` | `https://${PROJECT_NAME}.pages.dev/webhook/eduzz/<slug>` |
 | Hotmart | `HOTMART_WEBHOOK_SLUG` 🔒 | `<generated UUID>` | `https://${PROJECT_NAME}.pages.dev/webhook/hotmart/<slug>` |
 | Kiwify | `KIWIFY_WEBHOOK_SLUG` 🔒 | `<generated UUID>` | `https://${PROJECT_NAME}.pages.dev/webhook/kiwify/<slug>` |
+| TikTok | `TIKTOK_WEBHOOK_SLUG` 🔒 | `<generated UUID>` | `https://${PROJECT_NAME}.pages.dev/webhook/tiktok/<slug>` |
 
 Tell the recipient: "These URLs are how each sales platform reaches your stack. Save them in a password manager — if anyone else gets a URL, they can inject fake purchases into your reporting."
 

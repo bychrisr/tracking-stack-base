@@ -63,6 +63,11 @@
                              If you don't run GA4, delete the two GA4
                              <script> blocks below — the stack will skip
                              GA4 cleanly when env vars are unset.
+      - TIKTOK_PIXEL_ID    → your TikTok Pixel ID. If you don't run
+                             TikTok Ads, keep the TikTok block commented.
+      - UET_TAG_ID         → your Microsoft UET Tag ID (Bing Ads).
+      - LINKEDIN_ID        → your LinkedIn Partner ID (optional, B2B).
+      - CLARITY_ID         → your Microsoft Clarity ID (optional, session recordings).
       - CHECKOUT_URL       → your sales platform's real checkout URL
       - CHECKOUT_PLATFORM  → 'eduzz' | 'hotmart' | 'kiwify' (determines
                              which URL param carries `trk`)
@@ -114,6 +119,54 @@
       }).catch(function () {});
     })();
   </script>
+
+  <!-- TikTok Pixel — ativar apenas se rodar TikTok Ads.
+       Substitua SEU_TIKTOK_PIXEL_ID pelo seu Pixel ID.
+       Obter em: business.tiktok.com → Events Manager → Web Pixel -->
+  <!--
+  <script>
+  !function (w, d, t) {
+    w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+    ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];
+    ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
+    for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+    ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
+    ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";
+    ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
+    var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;
+    var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+    ttq.load('SEU_TIKTOK_PIXEL_ID');
+    ttq.page();
+  }(window, document, 'ttq');
+  </script>
+  -->
+
+  <!-- Microsoft UET Tag — ativar apenas se rodar Bing/Microsoft Ads.
+       Substitua SEU_UET_TAG_ID pelo seu Tag ID.
+       Obter em: ads.microsoft.com → Conversion Tracking → UET Tag -->
+  <!--
+  <script>
+  (function(w,d,t,r,u){var f,n,i;w[u]=w[u]||[],f=function(){var o={ti:"SEU_UET_TAG_ID"};
+  o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")},n=d.createElement(t),n.src=r,
+  n.async=1,n.onload=n.onreadystatechange=function(){var s=this.readyState;
+  s&&s!=="loaded"&&s!=="complete"||(f(),n.onreadystatechange=null)},
+  i=d.getElementsByTagName(t)[0],i.parentNode.insertBefore(n,i)})(window,document,
+  "script","//bat.bing.com/bat.js","uetq");
+  </script>
+  -->
+
+  <!-- Microsoft Clarity — heatmaps e session recordings, gratuito e ilimitado.
+       Substitua SEU_CLARITY_ID pelo ID da sua conta.
+       Criar conta em: clarity.microsoft.com -->
+  <!--
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window,document,"clarity","script","SEU_CLARITY_ID");
+  </script>
+  -->
 
   <style>
     *,*::before,*::after { box-sizing: border-box; }
@@ -1008,6 +1061,27 @@
     }
   })();
   </script>
+
+  <!-- LinkedIn Insight Tag — apenas para produtos B2B.
+       Substitua SEU_LINKEDIN_PARTNER_ID pelo seu Partner ID.
+       Obter em: linkedin.com/campaignmanager → Insight Tag -->
+  <!--
+  <script type="text/javascript">
+  _linkedin_partner_id = "SEU_LINKEDIN_PARTNER_ID";
+  window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+  window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+  </script>
+  <script type="text/javascript">
+  (function(l) {
+  if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
+  window.lintrk.q=[]}
+  var s = document.getElementsByTagName("script")[0];
+  var b = document.createElement("script");
+  b.type = "text/javascript";b.async = true;
+  b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+  s.parentNode.insertBefore(b, s);})(window.lintrk);
+  </script>
+  -->
 
 </body>
 </html>

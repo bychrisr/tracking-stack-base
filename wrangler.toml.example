@@ -30,6 +30,8 @@ database_id = "__REPLACE_ME_DB_ID__"
 #   META_ACCESS_TOKEN       Meta CAPI long-lived access token
 #   GA4_MEASUREMENT_ID      GA4 Measurement ID (G-XXXXXXXXXX)
 #   GA4_API_SECRET          GA4 Measurement Protocol API secret
+#   TIKTOK_PIXEL_ID         TikTok Pixel ID
+#   TIKTOK_EVENTS_API_TOKEN TikTok Events API access token
 #   DASH_KEY                Random string to gate the dashboard
 #
 # Optional (leave unset to skip that integration):
@@ -46,6 +48,7 @@ database_id = "__REPLACE_ME_DB_ID__"
 #   GOOGLE_ADS_LOGIN_CUSTOMER_ID
 #   ENCHARGE_API_KEY
 #   MANYCHAT_KEY
+#   TIKTOK_WEBHOOK_SLUG     UUID v4 in URL path (generate per recipient; see deploy-stack)
 #   EDUZZ_WEBHOOK_SLUG      UUID v4 in URL path (generate per recipient; see deploy-stack)
 #   HOTMART_WEBHOOK_SLUG    same pattern
 #   KIWIFY_WEBHOOK_SLUG     same pattern

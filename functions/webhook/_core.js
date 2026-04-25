@@ -141,10 +141,11 @@ async function handleTracking({ parsed, eventId, eventTime, env }) {
     currency: it?.price?.currency || currency,
   }));
 
-  const [metaResult, ga4Result, googleAdsResult] = await Promise.allSettled([
+  const [metaResult, ga4Result, googleAdsResult, tiktokResult] = await Promise.allSettled([
     sendToMeta({ checkoutData, hashedEm, hashedFn, hashedLn, hashedPh, hashedExternalId, eventId, eventTime, value, currency, productName, contents, env }),
     sendToGA4({ checkoutData, hashedEm, transactionId, value, currency, ga4Items, env }),
     sendToGoogleAds({ checkoutData, productConfig, hashedEm, transactionId, value, currency, eventTime, env }),
+    sendToTikTok({ checkoutData, hashedEm, hashedPh, eventId, eventTime, value, currency, contents, env }),
   ]);
 
   // Parse Meta response
@@ -203,10 +204,27 @@ async function handleTracking({ parsed, eventId, eventTime, env }) {
     googleAdsResponseBody = `Fetch error: ${googleAdsResult.reason?.message || 'unknown'}`;
   }
 
+  // Parse TikTok response
+  let tiktokStatusCode = 0, tiktokResponseOk = 0, tiktokResponseBody = '', tiktokPayloadSent = null;
+  if (tiktokResult?.status === 'fulfilled' && tiktokResult.value) {
+    const v = tiktokResult.value;
+    tiktokPayloadSent = v.payload;
+    if (v.skipped) {
+      tiktokResponseBody = `skipped: ${v.skipped}`;
+    } else if (v.response) {
+      tiktokStatusCode = v.response.status;
+      tiktokResponseOk = v.response.ok ? 1 : 0;
+      try { tiktokResponseBody = await v.response.text(); } catch (e) { tiktokResponseBody = `Read error: ${e.message}`; }
+    }
+  } else if (tiktokResult?.status === 'rejected') {
+    tiktokResponseBody = `Fetch error: ${tiktokResult.reason?.message || 'unknown'}`;
+  }
+
   return {
     metaStatusCode, metaResponseOk, metaResponseBody, metaPayloadSent,
     ga4StatusCode, ga4ResponseOk, ga4ResponseBody, ga4PayloadSent,
     googleAdsStatusCode, googleAdsResponseOk, googleAdsResponseBody, googleAdsPayloadSent,
+    tiktokStatusCode, tiktokResponseOk, tiktokResponseBody, tiktokPayloadSent,
     hashedEm, hashedFn, hashedLn, hashedPh, hashedExternalId,
   };
 }
@@ -353,13 +371,14 @@ async function handlePurchaseLog({ parsed, eventId, eventTime, resultMap, env })
         meta_status_code, meta_response_ok, meta_response_body, meta_payload_sent,
         ga4_status_code, ga4_response_ok, ga4_response_body, ga4_payload_sent,
         google_ads_status_code, google_ads_response_ok, google_ads_response_body, google_ads_payload_sent,
+        tiktok_status_code, tiktok_response_ok, tiktok_response_body, tiktok_payload_sent,
         gclid, gbraid, wbraid,
         utm_source, utm_medium, utm_campaign, utm_content, utm_term,
         product_id, product_name,
         encharge_status_code, encharge_response_ok, encharge_response_body,
         manychat_status_code, manychat_response_ok, manychat_response_body,
         created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       trk || '', eventId, eventTime,
       email, name, phone,
@@ -372,6 +391,7 @@ async function handlePurchaseLog({ parsed, eventId, eventTime, resultMap, env })
       tracking.metaStatusCode || 0, tracking.metaResponseOk || 0, tracking.metaResponseBody || '', tracking.metaPayloadSent ?? null,
       tracking.ga4StatusCode || 0, tracking.ga4ResponseOk || 0, tracking.ga4ResponseBody || '', tracking.ga4PayloadSent ?? null,
       tracking.googleAdsStatusCode || 0, tracking.googleAdsResponseOk || 0, tracking.googleAdsResponseBody || '', tracking.googleAdsPayloadSent ?? null,
+      tracking.tiktokStatusCode || 0, tracking.tiktokResponseOk || 0, tracking.tiktokResponseBody || '', tracking.tiktokPayloadSent ?? null,
       checkoutData.gclid || '', checkoutData.gbraid || '', checkoutData.wbraid || '',
       // UTMs prefer what the sales platform echoes back in the webhook
       // (platformUtm, authoritative when present), then fall back to what
@@ -674,6 +694,61 @@ async function sendToGoogleAds({ checkoutData, productConfig, hashedEm, transact
         'developer-token': env.GOOGLE_ADS_DEVELOPER_TOKEN,
         'login-customer-id': loginCustomerId,
         'Content-Type': 'application/json',
+      },
+      body: payloadJson,
+    }
+  );
+  return { payload: payloadJson, response };
+}
+
+// -----------------------------------------------------------------------------
+// TIKTOK EVENTS API — CompletePayment (Purchase)
+// -----------------------------------------------------------------------------
+async function sendToTikTok({ checkoutData, hashedEm, hashedPh, eventId, eventTime, value, currency, contents, env }) {
+  if (!env.TIKTOK_PIXEL_ID || !env.TIKTOK_EVENTS_API_TOKEN) {
+    return { skipped: 'missing tiktok env', payload: null, response: null };
+  }
+
+  const tiktokPayload = {
+    event_source: 'web',
+    event_source_id: env.TIKTOK_PIXEL_ID,
+    data: [{
+      event: 'CompletePayment',
+      event_id: eventId,
+      event_time: eventTime,
+      url: checkoutData.event_source_url || '',
+      user: {
+        ip: checkoutData.ip_address || '',
+        ua: checkoutData.user_agent || '',
+      },
+      properties: {
+        value: parseFloat(value) || 0,
+        currency: currency,
+      }
+    }]
+  };
+
+  if (hashedEm) tiktokPayload.data[0].user.email = hashedEm;
+  if (hashedPh) tiktokPayload.data[0].user.phone = hashedPh;
+  if (checkoutData.fbp) tiktokPayload.data[0].user.ttp = checkoutData.fbp;
+
+  if (contents && contents.length) {
+    tiktokPayload.data[0].properties.contents = contents.map(c => ({
+      content_id: c.id,
+      content_type: 'product',
+      quantity: c.quantity || 1,
+      price: c.item_price || 0,
+    }));
+  }
+
+  const payloadJson = JSON.stringify(tiktokPayload);
+  const response = await fetch(
+    'https://business-api.tiktok.com/open_api/v1.3/event/track/',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${env.TIKTOK_EVENTS_API_TOKEN}`,
       },
       body: payloadJson,
     }
