@@ -36,4 +36,5 @@ export default {
   hotmart: {},
   kiwify: {},
   stripe: {},
+  monetizze: {},
 };
