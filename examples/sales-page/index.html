@@ -65,6 +65,7 @@
                              GA4 cleanly when env vars are unset.
       - TIKTOK_PIXEL_ID    → your TikTok Pixel ID. If you don't run
                              TikTok Ads, keep the TikTok block commented.
+      - UET_TAG_ID         → your Microsoft UET Tag ID (Bing Ads).
       - CHECKOUT_URL       → your sales platform's real checkout URL
       - CHECKOUT_PLATFORM  → 'eduzz' | 'hotmart' | 'kiwify' (determines
                              which URL param carries `trk`)
@@ -135,6 +136,20 @@
     ttq.load('SEU_TIKTOK_PIXEL_ID');
     ttq.page();
   }(window, document, 'ttq');
+  </script>
+  -->
+
+  <!-- Microsoft UET Tag — ativar apenas se rodar Bing/Microsoft Ads.
+       Substitua SEU_UET_TAG_ID pelo seu Tag ID.
+       Obter em: ads.microsoft.com → Conversion Tracking → UET Tag -->
+  <!--
+  <script>
+  (function(w,d,t,r,u){var f,n,i;w[u]=w[u]||[],f=function(){var o={ti:"SEU_UET_TAG_ID"};
+  o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")},n=d.createElement(t),n.src=r,
+  n.async=1,n.onload=n.onreadystatechange=function(){var s=this.readyState;
+  s&&s!=="loaded"&&s!=="complete"||(f(),n.onreadystatechange=null)},
+  i=d.getElementsByTagName(t)[0],i.parentNode.insertBefore(n,i)})(window,document,
+  "script","//bat.bing.com/bat.js","uetq");
   </script>
   -->
 
