@@ -12,13 +12,16 @@
 // -----------------------------------------------------------------------------
 
 import { processPurchase } from '../_core.js';
-import { guardSlug } from '../_utils.js';
+import { guardSlug, verifyEduzzSignature } from '../_utils.js';
 
 export async function onRequestPost(context) {
   const { request, env, params } = context;
 
   const slugFailure = guardSlug(params.slug, env.EDUZZ_WEBHOOK_SLUG);
   if (slugFailure) return slugFailure;
+
+  const hmacFailure = await verifyEduzzSignature(request, env.EDUZZ_HMAC_SECRET);
+  if (hmacFailure) return hmacFailure;
 
   try {
     const rawPayload = await request.json();

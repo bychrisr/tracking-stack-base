@@ -13,20 +13,23 @@ Kiwify, future platforms) is structured by copying this adapter.
 - **Dashboard URL for webhook config**: Eduzz → Minha Conta → Integrações
   → Webhooks.
 
-## Endpoint security — obscure URL
+## Endpoint security — obscure URL & HMAC-SHA256
 
-The full endpoint is `/webhook/eduzz/<slug>` where `<slug>` is a
-36-character UUID v4 generated for the recipient by `deploy-stack` and
-stored as `env.EDUZZ_WEBHOOK_SLUG`. A request to `/webhook/eduzz/<any
-wrong slug>` returns 404 — indistinguishable from a nonexistent route,
-so drive-by scanners learn nothing.
+Eduzz webhooks are double-guarded:
+1. **Obscure URL**: `/webhook/eduzz/<slug>` with `<slug>` stored as
+   `env.EDUZZ_WEBHOOK_SLUG`. Wrong slug → 404.
+2. **HMAC-SHA256 Verification**: The `x-signature` header is verified
+   against the raw body using `env.EDUZZ_HMAC_SECRET`. Wrong or
+   missing signature → 401.
 
-Platform-native HMAC verification (`x-signature` header, HMAC-SHA256
-over raw body) is **deliberately not implemented** in v1. The obscure
-URL is the only gate. This is the same pattern n8n / Zapier / GitHub /
-Stripe use for webhook endpoints. If a recipient wants to harden
-further, the post-launch `harden-tracking` skill will layer real HMAC
-verification on top without changing the adapter's shape.
+### How to configure:
+1. In the Eduzz dashboard (Órbita), go to **Configurações → Webhooks**.
+2. Create or edit your webhook configuration.
+3. In the **Segurança** (or **Token**) field, obtain your secret key.
+4. Copy this value and set it as `EDUZZ_HMAC_SECRET` in your
+   Cloudflare Pages environment variables.
+5. If `EDUZZ_HMAC_SECRET` is not set in the environment, the stack
+   returns 500 (misconfiguration) to prevent unauthenticated traffic.
 
 ## The `trk` field
 
@@ -146,3 +149,5 @@ paid' }` so Eduzz stops retrying.
 8. Check Meta Events Manager → Test Events for the matching `Purchase`.
 9. Separately, hit `/webhook/eduzz/wrong-slug` directly — it must return
    404. If you get 200, something is wrong with the slug guard.
+10. Hit the correct URL with a wrong or missing `x-signature` header
+    — expect 401.

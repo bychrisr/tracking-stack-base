@@ -75,14 +75,33 @@ export function verifyHotmartHottok(request, expectedHottok) {
 // Returns a 401 Response on failure, 500 if the secret is missing,
 // or null on success.
 export async function verifyKiwifySignature(request, secret) {
+  return verifyHmacSignature(request, secret, {
+    headerName: 'x-kiwify-signature',
+    algorithm: 'SHA-1'
+  });
+}
+
+// Verifies the Eduzz x-signature header (HMAC-SHA256).
+//
+// Returns a 401 Response on failure, 500 if the secret is missing,
+// or null on success.
+export async function verifyEduzzSignature(request, secret) {
+  return verifyHmacSignature(request, secret, {
+    headerName: 'x-signature',
+    algorithm: 'SHA-256'
+  });
+}
+
+// Generic HMAC signature verification helper.
+async function verifyHmacSignature(request, secret, { headerName, algorithm }) {
   if (!secret) {
     return new Response(
-      JSON.stringify({ error: 'KIWIFY_HMAC_SECRET not configured' }),
+      JSON.stringify({ error: 'webhook secret not configured' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  const signature = request.headers.get('x-kiwify-signature');
+  const signature = request.headers.get(headerName);
   if (!signature) {
     return new Response(
       JSON.stringify({ error: 'unauthorized (missing signature)' }),
@@ -101,7 +120,7 @@ export async function verifyKiwifySignature(request, secret) {
   const key = await crypto.subtle.importKey(
     'raw',
     keyData,
-    { name: 'HMAC', hash: 'SHA-1' },
+    { name: 'HMAC', hash: algorithm },
     false,
     ['sign']
   );
