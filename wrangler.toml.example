@@ -48,6 +48,7 @@ database_id = "__REPLACE_ME_DB_ID__"
 #   GOOGLE_ADS_LOGIN_CUSTOMER_ID
 #   ENCHARGE_API_KEY
 #   MANYCHAT_KEY
+#   RETENTION_DAYS          Number of days to keep logs (default 90)
 #   TIKTOK_WEBHOOK_SLUG     UUID v4 in URL path (generate per recipient; see deploy-stack)
 #   EDUZZ_WEBHOOK_SLUG      UUID v4 in URL path (generate per recipient; see deploy-stack)
 #   EDUZZ_HMAC_SECRET       Secret from Eduzz Panel -> Webhooks
@@ -59,3 +60,6 @@ database_id = "__REPLACE_ME_DB_ID__"
 #   STRIPE_WEBHOOK_SECRET   Secret from Stripe Dashboard -> Webhooks
 #   MONETIZZE_WEBHOOK_SLUG  same pattern
 # ---------------------------------------------------------------------------
+
+# [triggers]
+# crons = ["0 0 * * 0"] # Run weekly at midnight on Sunday
