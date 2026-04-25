@@ -544,6 +544,39 @@
       .price .amount { font-size: 2.5rem; }
     }
   </style>
+  <!-- Schema markup — atualize com seus dados reais.
+       Valide em: https://search.google.com/test/rich-results -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Nome do Negócio",
+    "url": "https://seusite.com",
+    "logo": "https://seusite.com/logo.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "contato@seusite.com"
+    }
+  }
+  </script>
+
+  <!-- Schema FAQPage — remova o comentário abaixo para ativar quando houver FAQ
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [{
+      "@type": "Question",
+      "name": "Pergunta aqui?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Resposta aqui."
+      }
+    }]
+  }
+  </script>
+  -->
 </head>
 <body>
 
