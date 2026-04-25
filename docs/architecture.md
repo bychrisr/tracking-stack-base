@@ -77,6 +77,28 @@ the conversion with real attribution data. Without it, a sales-platform
 webhook only knows about the buyer's email and the product; it has no idea
 which ad they came from.
 
+### Flow C — Maintenance & Health (Cron Workers)
+
+```
+Cloudflare Cron Trigger
+   → functions/scripts/retention-policy.js (Weekly)
+        • DELETE FROM event_log/sync_log WHERE created_at < RETENTION_DAYS
+   → functions/scripts/webhook-health.js (Daily)
+        • SELECT count sessions (last 24h)
+        • SELECT count purchases (last 24h)
+        • If sessions > 0 AND purchases == 0 → Send Alert (Mailchannels)
+```
+
+### Flow D — Data Export (CSV)
+
+```
+Admin calls /api/export?table=purchases&key=DASH_KEY
+   → functions/api/export.js
+        • Validates DASH_KEY
+        • SELECTs all rows from requested table
+        • Streams CSV content with proper escaping
+```
+
 ## Why each file exists
 
 ### `functions/_middleware.js`

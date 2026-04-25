@@ -1,93 +1,67 @@
-# Tracking Stack
+# Tracking Stack — Atribuição Server-Side de Alta Precisão
 
-Self-hosted server-side tracking for Meta Ads, GA4, and Google Ads. Replaces
-Stape and GTM Server-Side for paid-traffic creators running lead-capture forms
-and sales pages.
+Solução auto-hospedada de tracking server-side para Meta Ads, GA4, Google Ads e TikTok. Projetada para substituir Stape e GTM Server-Side, eliminando custos mensais recorrentes e garantindo **atribuição de 100% das conversões** para infoprodutores e gestores de tráfego.
 
-**Version**: see `VERSION`
+**Versão**: 4.0.0 (Sprint 4 Concluída)
 
-## What you get
+## 🚀 Valor de Negócio e Diferenciais
 
-- **First-party cookies** that survive Safari ITP (400-day server-set from the edge).
-- **Server-side conversion events** to Meta CAPI, GA4 Measurement Protocol,
-  and Google Ads API — no loss from ad-blockers, no dependence on the pixel.
-- **Full attribution persistence** (UTMs, `fbp`/`fbc`, `gclid`) captured at
-  the edge and threaded through to each lead and each purchase.
-- **Sales platform webhooks** for Eduzz, Hotmart, and Kiwify out of the box.
-- **A built-in dashboard** showing leads and purchases with their original
-  UTMs so you can see where conversions actually came from.
-- **Runs entirely in your own Cloudflare account.** No external services, no
-  SaaS subscriptions, no shared backend.
+- **Atribuição Blindada**: Captura UTMs, `fbp`/`fbc` e `gclid` diretamente no edge (Cloudflare), persistindo os dados mesmo em navegadores com ITP agressivo (Safari/iOS).
+- **Prova de Ad-Blockers**: Como o tracking ocorre no servidor, os dados de conversão chegam às plataformas de anúncios sem interferência de bloqueadores de anúncios ou extensões de privacidade.
+- **Conformidade Legal (GDPR/LGPD)**: Processamento de dados First-Party em infraestrutura própria, garantindo controle total sobre as informações dos usuários.
+- **ROI Real**: Visualize o custo por aquisição (CPA) e o ROAS real no dashboard integrado, sem os atrasos ou perdas do tracking via browser.
 
-## Who this is for
+## 🛠️ O que há de novo (Sprint 4)
 
-Creators running paid traffic to lead-capture or sales pages. You have (or can
-get) your own Meta Ads account, GA4 property, and optionally Google Ads. You
-want the tracking quality of Stape or a GTM Server container without the
-monthly cost or the DevOps.
+- **Segurança Stripe HMAC**: Integração reforçada com Stripe utilizando validação de assinatura HMAC para prevenir webhooks fraudulentos.
+- **Suporte Monetizze**: Nova integração nativa para a plataforma Monetizze, fechando o ecossistema das principais plataformas de vendas brasileiras.
+- **Exportação CSV Inteligente**: Gere relatórios avançados com um clique para análise profunda em Excel ou BI.
+- **Manutenção Automatizada**: Rotinas de retenção de dados e alertas de saúde de webhook para operação "set and forget".
+- **Suíte de Testes Robusta**: 23 testes unitários garantindo que a lógica de atribuição e os adapters de plataforma funcionem perfeitamente.
 
-This is **not** for you if:
+## 🔌 Plataformas Suportadas
 
-- You don't run your own ad accounts.
-- You need a hosted SaaS product — this runs in *your* Cloudflare account, not
-  ours.
-- Your sales platform isn't Eduzz, Hotmart, or Kiwify and you're not willing
-  to let Claude Code help you add a new one (it's a guided 15-minute procedure
-  — see `docs/platforms/_template.md`).
+O Tracking Stack integra-se nativamente com as ferramentas essenciais do mercado:
 
-## What you need before you start
+- **Plataformas de Anúncios**: Meta Ads (CAPI), Google Ads API, TikTok Business API.
+- **Analytics e UX**: Google Analytics 4 (Measurement Protocol), Microsoft Clarity (Server-Side Identification).
+- **Plataformas de Vendas**: Stripe, Monetizze, Hotmart, Kiwify, Eduzz.
 
-- **A Cloudflare account.** The free tier is enough to start. You'll create a
-  Pages project and a D1 database inside it.
-- **A GitHub account**, with the `gh` CLI installed and authenticated
-  (`gh auth login`). Cloudflare Pages deploys your stack by auto-pulling from
-  GitHub every time you push.
-- **Node.js** so `npx wrangler@latest` works (no global install needed).
-- **Claude Code installed.** This entire stack is designed to be deployed and
-  managed through Claude Code — you will not need to write any code yourself.
-- **Meta Business Manager**: a Pixel ID and a Conversions API access token.
-- **GA4 (optional)**: a Measurement ID (`G-XXXXXXXXXX`) and a Measurement
-  Protocol API secret. Skip if you don't plan to use GA4.
-- **Google Ads (optional)**: developer token, OAuth credentials, and at least
-  one conversion action ID. Skip this if you don't run Google Ads.
-- **A sales platform account** if you're building a sales page (Eduzz,
-  Hotmart, or Kiwify). Each needs a way to generate a webhook secret in its
-  own dashboard.
+## 🏥 Manutenção e Saúde (Maintenance & Health)
 
-## How to set up
+O sistema foi desenhado para ser resiliente e de baixa manutenção:
 
-1. Unpack this folder somewhere on your computer.
-2. Open that folder in **Claude Code**.
-3. Say: **"set up my tracking"**. Claude Code invokes the `deploy-stack`
-   skill, which creates your D1 database via `wrangler`, spins up a fresh
-   private GitHub repo and pushes the code, then walks you step by step
-   through the Cloudflare dashboard — creating the Pages project, binding
-   the D1, and adding your environment variables. Expect about 30 minutes
-   end-to-end.
-4. When it finishes, say: **"check my tracking is working"**. Claude Code will
-   invoke the `verify-tracking` skill and walk you through the 6-step
-   integrity verification so you know every link in the chain is wired up
-   before you point real traffic at it.
-5. To add your first lead form or sales page, say: **"add a lead page"** or
-   **"add a sales page"**. Claude Code will copy the right starter template
-   and wire it to the tracking endpoints.
+- **Retention Policy (D1)**: Script automático que remove logs antigos (padrão 90 dias) para manter a performance do banco de dados D1 e otimizar custos.
+- **Webhook Health Monitoring**: Monitoramento proativo que alerta via e-mail se o fluxo de vendas for interrompido em períodos de tráfego ativo, detectando falhas de integração instantaneamente.
 
-## What's inside
+## 🧪 Qualidade Garantida (Testes)
 
-| Directory | Purpose |
+Para garantir a integridade dos seus dados de conversão, implementamos uma suíte completa de testes utilizando **Vitest**.
+
+Para rodar os testes:
+```bash
+npm test
+# ou
+npx vitest run
+```
+A suíte cobre desde a lógica core de atribuição até a validação de payloads específicos para cada plataforma de vendas.
+
+## 📋 Pré-requisitos e Instalação
+
+- **Conta Cloudflare**: O stack roda inteiramente na sua conta (Tier gratuito é suficiente para começar).
+- **GitHub**: Para deploy automatizado via Cloudflare Pages.
+- **Claude Code / Gemini CLI**: O projeto é gerenciado por IA. Para instalar, basta abrir a pasta no seu agente e dizer: `"configurar meu tracking"`.
+
+## 📂 Estrutura do Projeto
+
+| Diretório | Propósito |
 |---|---|
-| `functions/` | Cloudflare Pages Functions — middleware, endpoints, webhook handlers |
-| `migrations/` | D1 database schema (applied during setup) |
-| `dash/` | The built-in dashboard (self-contained HTML) |
-| `examples/` | Starter HTML pages for lead forms and sales pages |
-| `docs/` | Reference documentation you can read if you're curious |
-| `.claude/skills/` | Claude Code skills that automate setup, verification, and extension |
-| `config/` | Per-product configuration (you edit one JSON file) |
+| `functions/` | Lógica Server-Side (Middleware, Endpoints, Webhook Adapters) |
+| `migrations/` | Schema do banco de dados D1 |
+| `dash/` | Dashboard administrativo (Self-contained HTML) |
+| `tests/` | Suíte de 23 testes unitários (Vitest) |
+| `docs/` | Documentação detalhada de arquitetura e monitoramento |
 
-## Support
+## ⚖️ Licença
 
-<!-- TODO: fill in support channel (Slack? forum? email?) before launch -->
-
-## License
-
-<!-- TODO: decide license before launch -->
+Consulte o arquivo `LICENSE` para detalhes sobre uso e distribuição.

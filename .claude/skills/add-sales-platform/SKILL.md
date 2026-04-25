@@ -35,25 +35,26 @@ this order, one or two at a time — don't dump the whole list at once.
      values with `example@example.com` / `+5511999999999` but must
      keep the JSON structure and field names exact.
 3. **Which field carries the `trk` / custom tracking value** (JSON path
-   inside the body). If the platform doesn't have a custom-tracking
-   field at all, this skill cannot make attribution work — flag it
-   clearly and ask if they have any other URL parameter that
-   round-trips to the webhook.
+   inside the body). 
+   - **Stripe**: Usually `data.object.metadata.trk`.
+   - **Monetizze**: Usually `venda.src` or `venda.sck`.
+   - **Hotmart/Eduzz/Kiwify**: Usually a custom field named `trk` or `xcod`.
+   If the platform doesn't have a custom-tracking field at all, this skill cannot make attribution work — flag it clearly and ask if they have any other URL parameter that round-trips to the webhook.
 4. **Which URL parameter name the sales page should use** to send `trk`
-   into the checkout. Usually documented under "UTM tracking", "partner
-   ID", or "custom source code" in the platform's checkout settings.
+   into the checkout. 
+   - **Stripe**: Passed via URL and captured by the session metadata.
+   - **Monetizze**: Usually `src` or `sck`.
 5. **Which field signals a successful paid purchase** (e.g.
-   `event === 'paid'`, `status === 'APPROVED'`). There may be multiple
-   statuses — we only process the "money received, delivery triggered"
-   one.
+   `event === 'paid'`, `status === 'APPROVED'`). 
+   - **Monetizze**: `venda.status` being 'Finalizada' or 'Completa'.
+   - **Stripe**: Event type `checkout.session.completed`.
 6. **Platform signature scheme**. Ask if the platform sends a signature
-   header (HMAC-SHA256, HMAC-SHA1, or a static token like Hottok). If
-   yes, ask for the header name and which dashboard section provides
-   the secret.
+   header (HMAC-SHA256, HMAC-SHA1, or a static token like Hottok).
+   - **Stripe**: Uses `Stripe-Signature` (HMAC-SHA256).
 
-Signature verification is **highly recommended**. Use the generic
-`verifyHmacSignature` helper in `functions/webhook/_utils.js` (or
-`verifyHotmartHottok` for static tokens).
+Signature verification is **highly recommended**. 
+- For **Stripe**, use `verifyStripeSignature(request, env.STRIPE_WEBHOOK_SECRET)`.
+- For others, use the generic `verifyHmacSignature` helper in `functions/webhook/_utils.js` (or `verifyHotmartHottok` for static tokens).
 
 If items 2-5 are missing and they can't get them, stop here — the
 parser can't be written accurately without a real payload.
@@ -76,14 +77,16 @@ variables → Add variable** — with:
 - **Value**: `<NEW_SLUG value you printed above>`
 - **Encrypt**: yes 🔒
 
+If using HMAC (like Stripe), also add:
+- **Name**: `${PLATFORM_UPPER}_WEBHOOK_SECRET`
+- **Value**: `<Secret from platform dashboard>`
+
 Wait for them to confirm it's saved before moving on. Capture the slug
 so you can print the full webhook URL back to the recipient in Step 8.
 
 ## Step 3 — Pick the structural reference
 
-Read `functions/webhook/eduzz/[slug].js` into context. It's the cleanest
-structural base for a new adapter — small, clear payload unwrap, clear
-parser, clear delegation.
+Read `functions/webhook/stripe/[slug].js` (for HMAC + Metadata based) or `functions/webhook/monetizze/[slug].js` (for JSON + status-check based) into context. They are the newest references following the Sprint 4 standards (including `items` array support).
 
 ## Step 4 — Read the platform template
 
@@ -120,11 +123,11 @@ Then edit `docs/platforms/<platform>.md` to fill in:
 
 ## Step 6 — Create the adapter
 
-Copy Eduzz's adapter as the base:
+Copy the chosen reference as the base:
 
 ```bash
 mkdir -p functions/webhook/<platform>
-cp functions/webhook/eduzz/[slug].js functions/webhook/<platform>/[slug].js
+cp functions/webhook/stripe/[slug].js functions/webhook/<platform>/[slug].js
 ```
 
 Then edit `functions/webhook/<platform>/[slug].js`:
@@ -136,22 +139,36 @@ Then edit `functions/webhook/<platform>/[slug].js`:
    const slugFailure = guardSlug(params.slug, env.<PLATFORM_UPPER>_WEBHOOK_SLUG);
    ```
 3. **Change the `platform` string** in the normalized object from
-   `'eduzz'` to the new platform name.
-4. **Add signature verification**. If the platform supports it:
-   - Import the helper from `../_utils.js`.
-   - Call it before the `try` block:
-     ```js
-     const hmacFailure = await verifyHmacSignature(request, env.<PLATFORM>_HMAC_SECRET, {
-       headerName: '<header-name>',
-       algorithm: 'SHA-256' // or SHA-1
-     });
-     if (hmacFailure) return hmacFailure;
-     ```
-5. **Replace the payload unwrap and parser** with the new mapping from
-   the doc's table. Keep the `parsed` object's shape exactly — every
-   key in the normalized purchase object is required by `_core.js`.
-   If the platform doesn't provide a field, use `''` or `0`, never
-   omit the key.
+   `'stripe'` to the new platform name.
+4. **Add/Update signature verification**. 
+   ```js
+   const hmacFailure = await verifyStripeSignature(request, env.<PLATFORM>_WEBHOOK_SECRET);
+   // OR generic:
+   const hmacFailure = await verifyHmacSignature(request, env.<PLATFORM>_WEBHOOK_SECRET, {
+     headerName: '<header-name>', algorithm: 'SHA-256'
+   });
+   if (hmacFailure) return hmacFailure;
+   ```
+5. **Implement the parser** including `items` array for ROAS:
+   ```js
+   items: lineItems.map(it => ({
+     productId: it.id || '',
+     name: it.description || '',
+     quantity: it.quantity || 1,
+     price: { value: it.amount / 100, currency: 'USD' }
+   })),
+   ```
+6. **Include `platformUtm`** if the platform provides its own UTM capture.
+   ```js
+   platformUtm: {
+     utm_source: body.utm_source || '',
+     // ... other utms
+   },
+   ```
+
+Keep the `parsed` object's shape exactly — every key in the normalized purchase object is required by `_core.js`.
+If the platform doesn't provide a field, use `''` or `0`, never
+omit the key.
 6. **Replace the paid-status filter** with the new platform's check.
    Return `200 { ok: true, skipped: <reason> }` for non-paid events
    so the platform stops retrying.

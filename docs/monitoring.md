@@ -35,15 +35,33 @@ Este checklist operacional deve ser seguido periodicamente para garantir a saúd
 ### Retenção de Dados (D1 Retention Policy)
 O banco de dados D1 tem limites de armazenamento. O stack inclui um script de limpeza automática (`functions/scripts/retention-policy.js`) que remove logs antigos para manter o sistema performático.
 
-- **Frequência:** Semanal (configurável via Cron Trigger no `wrangler.toml`).
-- **Configuração:** Defina `RETENTION_DAYS` (padrão 90) nas variáveis de ambiente.
+- **Frequência:** Semanal (configurável via Cron Trigger).
+- **Configuração:** Adicione no seu `wrangler.toml`:
+  ```toml
+  [triggers]
+  crons = ["0 0 * * 0"] # Todo domingo à meia-noite
+  ```
+- **Variáveis:** Defina `RETENTION_DAYS` (padrão 90) nas variáveis de ambiente do Worker.
 
 ### Alerta de Saúde de Webhooks (Webhook Health Alert)
 Monitoramento proativo que detecta se o fluxo de vendas parou apesar de haver tráfego no site.
 
 - **Frequência:** Diária.
-- **Trigger:** Se houver > 0 sessões nas últimas 24h mas 0 compras registradas, o sistema dispara um alerta.
-- **Notificação:** Email enviado via Mailchannels para o endereço em `ADMIN_EMAIL`.
+- **Configuração:** Adicione no seu `wrangler.toml`:
+  ```toml
+  [triggers]
+  crons = ["0 9 * * *"] # Todos os dias às 09:00
+  ```
+- **Variáveis:** Requer `ADMIN_EMAIL` e `BASE_URL`.
+- **Trigger:** Se houver > 0 sessões nas últimas 24h mas 0 compras registradas, o sistema dispara um alerta via email (Mailchannels).
+
+## Exportação de Dados
+
+Para realizar auditorias externas ou importar dados em ferramentas de BI, você pode exportar os logs em formato CSV.
+
+- **Endpoint:** `/api/export?table=<leads|purchases>&key=<DASH_KEY>`
+- **Uso:** Acesse via navegador ou `curl` para baixar o arquivo.
+- **Segurança:** Protegido pela mesma `DASH_KEY` usada no dashboard.
 
 ---
 *Referência: `docs/tracking-playbook-stack.md` seção "Rotina de monitoramento"*
